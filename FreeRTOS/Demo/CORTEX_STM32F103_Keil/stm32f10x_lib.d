@@ -4,6 +4,7 @@
 .\stm32f10x_lib.o: ..\CORTEX_STM32F103_Keil\stm32f10x_conf.h
 .\stm32f10x_lib.o: .\STM32F10xFWLib\inc\stm32f10x_type.h
 .\stm32f10x_lib.o: .\STM32F10xFWLib\inc\cortexm3_macro.h
+.\stm32f10x_lib.o: .\STM32F10xFWLib\inc\stm32f10x_adc.h
 .\stm32f10x_lib.o: .\STM32F10xFWLib\inc\stm32f10x_exti.h
 .\stm32f10x_lib.o: .\STM32F10xFWLib\inc\stm32f10x_gpio.h
 .\stm32f10x_lib.o: .\STM32F10xFWLib\inc\stm32f10x_nvic.h

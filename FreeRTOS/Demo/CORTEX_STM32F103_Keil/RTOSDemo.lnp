@@ -9,6 +9,7 @@
 ".\stm32f10x_spi.o"
 ".\stm32f10x_systick.o"
 ".\stm32f10x_tim.o"
+".\stm32f10x_adc.o"
 ".\serial.o"
 ".\main.o"
 ".\tasks.o"
@@ -16,6 +17,9 @@
 ".\queue.o"
 ".\port.o"
 ".\heap_2.o"
+".\bsp_adc.o"
+".\adc_filter.o"
+".\app_adc.o"
 --library_type=microlib --strict --scatter ".\RTOSDemo.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

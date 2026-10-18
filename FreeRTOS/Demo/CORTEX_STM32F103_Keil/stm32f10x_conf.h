@@ -20,6 +20,10 @@
 #ifndef __STM32F10x_CONF_H
 #define __STM32F10x_CONF_H
 
+#define _ADC
+#define _ADC1
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_type.h"
 

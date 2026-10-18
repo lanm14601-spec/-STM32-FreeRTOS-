@@ -1,0 +1,16 @@
+.\bsp_adc.o: ADC\bsp_adc.c
+.\bsp_adc.o: ADC\bsp_adc.h
+.\bsp_adc.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stdint.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_lib.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_map.h
+.\bsp_adc.o: ..\CORTEX_STM32F103_Keil\stm32f10x_conf.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_type.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\cortexm3_macro.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_adc.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_exti.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_gpio.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_nvic.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_rcc.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_spi.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_systick.h
+.\bsp_adc.o: .\STM32F10xFWLib\inc\stm32f10x_usart.h

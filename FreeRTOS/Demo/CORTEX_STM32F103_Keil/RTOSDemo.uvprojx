@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4097</DriverSelection>
+            <DriverSelection>4098</DriverSelection>
           </Flash1>
           <bUseTDR>0</bUseTDR>
-          <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash2>BIN\CMSIS_AGDI.dll</Flash2>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -274,7 +274,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x20000</Size>
+                <Size>0x10000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>RVDS_ARMCM3_LM3S102</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc</IncludePath>
+              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -430,6 +430,11 @@
               <FileType>1</FileType>
               <FilePath>.\STM32F10xFWLib\src\stm32f10x_tim.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f10x_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\vendor\stm32f10x_adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -474,6 +479,31 @@
               <FileName>heap_2.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Source\portable\MemMang\heap_2.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP</GroupName>
+          <Files>
+            <File>
+              <FileName>bsp_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADC\bsp_adc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>APP</GroupName>
+          <Files>
+            <File>
+              <FileName>adc_filter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADC\adc_filter.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADC\app_adc.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -18,6 +18,7 @@
 .\serial.o: ..\CORTEX_STM32F103_Keil\stm32f10x_conf.h
 .\serial.o: .\STM32F10xFWLib\inc\stm32f10x_type.h
 .\serial.o: .\STM32F10xFWLib\inc\cortexm3_macro.h
+.\serial.o: .\STM32F10xFWLib\inc\stm32f10x_adc.h
 .\serial.o: .\STM32F10xFWLib\inc\stm32f10x_exti.h
 .\serial.o: .\STM32F10xFWLib\inc\stm32f10x_gpio.h
 .\serial.o: .\STM32F10xFWLib\inc\stm32f10x_nvic.h

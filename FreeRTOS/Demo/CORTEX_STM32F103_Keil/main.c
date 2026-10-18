@@ -59,11 +59,14 @@
 
 /* Standard includes. */
 #include <stdio.h>
-
+#include "app_adc.h"
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+
+#include "semphr.h"
+
 
 /* Library includes. */
 #include "stm32f10x_it.h"
@@ -116,42 +119,110 @@ information. */
  * Configure the clocks, GPIO and other peripherals as required by the demo.
  */
 static void prvSetupHardware( void );
-void Task1Function( void *param )
+static SemaphoreHandle_t xPrintMutex = NULL;
+
+/* 可在 Keil Watch 中观察 */
+volatile unsigned long g_error_code = 0;
+volatile UBaseType_t g_task1_stack_free = 0;
+volatile UBaseType_t g_task2_stack_free = 0;
+
+
+/*
+ * 错误码：
+ * 1：互斥锁创建失败
+ * 2：Task1 创建失败
+ * 3：Task2 创建失败
+ * 4：调度器意外返回
+ * 5：动态内存申请失败
+ * 6：任务栈溢出
+ */
+static void AppStop(unsigned long code)
 {
-	while(1)
-	{
-		printf("Task1\r\n");
-		vTaskDelay( 500 / portTICK_PERIOD_MS );
-	}
+    g_error_code = code;
+    taskDISABLE_INTERRUPTS();
+
+    for (;;)
+    {
+        /* 在这里设置断点 */
+    }
 }
-void Task2Function( void *param )
+
+void vApplicationMallocFailedHook(void)
 {
-	while(1)
-	{
-		printf("Task2\r\n");
-		vTaskDelay( 300 / portTICK_PERIOD_MS );
-	}
+    AppStop(5);
 }
 
-int main( void )
+void vApplicationStackOverflowHook(TaskHandle_t task, char *name)
 {
-	TaskHandle_t xHandleTask1;
+    (void)task;
+    (void)name;
 
-#ifdef DEBUG
-  debug();
-#endif
-
-	prvSetupHardware();
-	printf("hello world!\r\n");
-
-	xTaskCreate(Task1Function,"Task1",100,NULL,1,&xHandleTask1);
-	xTaskCreate(Task2Function,"Task2",100,NULL,1,NULL);
-	vTaskStartScheduler();
-
-	/* Will only get here if there was not enough heap space to create the
-	idle task. */
-	return 0;
+    AppStop(6);
 }
+
+void Task1Function(void *param)
+{
+    (void)param;
+
+    for (;;)
+    {
+        if (xSemaphoreTake(xPrintMutex, portMAX_DELAY) == pdTRUE)
+        {
+            printf("Task1\r\n");
+            xSemaphoreGive(xPrintMutex);
+        }
+
+        g_task1_stack_free = uxTaskGetStackHighWaterMark(NULL);
+        g_heap_free = xPortGetFreeHeapSize();
+
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
+
+void Task2Function(void *param)
+{
+    (void)param;
+
+    for (;;)
+    {
+        if (xSemaphoreTake(xPrintMutex, portMAX_DELAY) == pdTRUE)
+        {
+            printf("Task2\r\n");
+            xSemaphoreGive(xPrintMutex);
+        }
+
+        g_task2_stack_free = uxTaskGetStackHighWaterMark(NULL);
+
+        vTaskDelay(pdMS_TO_TICKS(300));
+    }
+}
+
+int main(void)
+{
+    int result;
+
+    /* 保留你已经验证能正常运行的硬件初始化 */
+    prvSetupHardware();
+
+    printf("FreeRTOS V0.2 ADC1 PA0\r\n");
+
+    /* 创建采样队列、ADC任务和显示任务 */
+    result = App_ADC_Create();
+
+    if (result != 0)
+    {
+        AppStop(100UL + (unsigned long)result);
+    }
+
+    vTaskStartScheduler();
+
+    /* 调度器正常启动后不应返回 */
+    AppStop(4UL);
+
+    return 0;
+}
+
+
 /*-----------------------------------------------------------*/
 
 

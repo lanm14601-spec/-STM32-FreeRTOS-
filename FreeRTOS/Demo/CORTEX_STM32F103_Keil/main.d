@@ -1,8 +1,9 @@
 .\main.o: main.c
 .\main.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stdio.h
+.\main.o: .\ADC\app_adc.h
+.\main.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stdint.h
 .\main.o: ..\..\Source\include\FreeRTOS.h
 .\main.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stddef.h
-.\main.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stdint.h
 .\main.o: ..\CORTEX_STM32F103_Keil\FreeRTOSConfig.h
 .\main.o: ..\..\Source\include\projdefs.h
 .\main.o: ..\..\Source\include\portable.h
@@ -12,12 +13,14 @@
 .\main.o: ..\..\Source\include\task.h
 .\main.o: ..\..\Source\include\list.h
 .\main.o: ..\..\Source\include\queue.h
+.\main.o: ..\..\Source\include\semphr.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_it.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_lib.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_map.h
 .\main.o: ..\CORTEX_STM32F103_Keil\stm32f10x_conf.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_type.h
 .\main.o: .\STM32F10xFWLib\inc\cortexm3_macro.h
+.\main.o: .\STM32F10xFWLib\inc\stm32f10x_adc.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_exti.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_gpio.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_nvic.h

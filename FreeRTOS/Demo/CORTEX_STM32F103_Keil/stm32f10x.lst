@@ -32,26 +32,26 @@ ARM Macro Assembler    Page 1
    15 00000000         ;//   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
    16 00000000         ;// </h>
    17 00000000         
-   18 00000000 00000200 
+   18 00000000 00000400 
                        Stack_Size
-                               EQU              0x00000200
+                               EQU              0x00000400
    19 00000000         
    20 00000000                 AREA             STACK, NOINIT, READWRITE, ALIGN
 =3
    21 00000000         Stack_Mem
                                SPACE            Stack_Size
-   22 00000200         __initial_sp
-   23 00000200         
-   24 00000200         
-   25 00000200         ;// <h> Heap Configuration
-   26 00000200         ;//   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-   27 00000200         ;// </h>
-   28 00000200         
-   29 00000200 00000000 
+   22 00000400         __initial_sp
+   23 00000400         
+   24 00000400         
+   25 00000400         ;// <h> Heap Configuration
+   26 00000400         ;//   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   27 00000400         ;// </h>
+   28 00000400         
+   29 00000400 00000000 
                        Heap_Size
                                EQU              0x00000000
-   30 00000200         
-   31 00000200                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
+   30 00000400         
+   31 00000400                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
 3
    32 00000000         __heap_base
    33 00000000         Heap_Mem
@@ -162,8 +162,7 @@ ARM Macro Assembler    Page 3
                                                             tion
    96 000000AC 00000000        DCD              TIM1_CC_IRQHandler ; TIM1 Captu
                                                             re Compare
-   97 000000B0 00000000        DCD              0           ; vTimer2IntHandler
-                                                                     ; TIM2
+   97 000000B0 00000000        DCD              TIM2_IRQHandler ; TIM2
    98 000000B4 00000000        DCD              TIM3_IRQHandler ; TIM3
    99 000000B8 00000000        DCD              TIM4_IRQHandler ; TIM4
   100 000000BC 00000000        DCD              I2C1_EV_IRQHandler ; I2C1 Event
@@ -176,8 +175,7 @@ ARM Macro Assembler    Page 3
                                                             
   104 000000CC 00000000        DCD              SPI1_IRQHandler ; SPI1
   105 000000D0 00000000        DCD              SPI2_IRQHandler ; SPI2
-  106 000000D4 00000000        DCD              0           ; vUARTInterruptHan
-                                                            dler     ; USART1
+  106 000000D4 00000000        DCD              USART1_IRQHandler ; USART1
   107 000000D8 00000000        DCD              USART2_IRQHandler ; USART2
   108 000000DC 00000000        DCD              USART3_IRQHandler ; USART3
   109 000000E0 00000000        DCD              EXTI15_10_IRQHandler 
@@ -193,14 +191,14 @@ ARM Macro Assembler    Page 3
   116 00000000         
   117 00000000         ; Reset Handler
   118 00000000         
+  119 00000000         Reset_Handler
+                               PROC
 
 
 
 ARM Macro Assembler    Page 4 
 
 
-  119 00000000         Reset_Handler
-                               PROC
   120 00000000                 EXPORT           Reset_Handler             [WEAK
 ]
   121 00000000                 IMPORT           __main
@@ -258,14 +256,14 @@ ARM Macro Assembler    Page 4
                                PROC
   163 00000012                 EXPORT           PendSV_Handler            [WEAK
 ]
+  164 00000012 E7FE            B                .
+  165 00000014                 ENDP
 
 
 
 ARM Macro Assembler    Page 5 
 
 
-  164 00000012 E7FE            B                .
-  165 00000014                 ENDP
   166 00000014         SysTick_Handler
                                PROC
   167 00000014                 EXPORT           SysTick_Handler           [WEAK
@@ -323,14 +321,14 @@ ARM Macro Assembler    Page 5
   195 00000016                 EXPORT           CAN_SCE_IRQHandler        [WEAK
 ]
   196 00000016                 EXPORT           EXTI9_5_IRQHandler        [WEAK
+]
+  197 00000016                 EXPORT           TIM1_BRK_IRQHandler       [WEAK
 
 
 
 ARM Macro Assembler    Page 6 
 
 
-]
-  197 00000016                 EXPORT           TIM1_BRK_IRQHandler       [WEAK
 ]
   198 00000016                 EXPORT           TIM1_UP_IRQHandler        [WEAK
 ]
@@ -388,14 +386,14 @@ ARM Macro Assembler    Page 6
   233 00000016         DMAChannel6_IRQHandler
   234 00000016         DMAChannel7_IRQHandler
   235 00000016         ADC_IRQHandler
+  236 00000016         USB_HP_CAN_TX_IRQHandler
+  237 00000016         USB_LP_CAN_RX0_IRQHandler
 
 
 
 ARM Macro Assembler    Page 7 
 
 
-  236 00000016         USB_HP_CAN_TX_IRQHandler
-  237 00000016         USB_LP_CAN_RX0_IRQHandler
   238 00000016         CAN_RX1_IRQHandler
   239 00000016         CAN_SCE_IRQHandler
   240 00000016         EXTI9_5_IRQHandler
@@ -468,7 +466,7 @@ Symbol: Stack_Mem
    Uses
       None
 Comment: Stack_Mem unused
-__initial_sp 00000200
+__initial_sp 00000400
 
 Symbol: __initial_sp
    Definitions
@@ -979,8 +977,9 @@ Symbol: TIM2_IRQHandler
    Definitions
       At line 245 in file STM32F10x.s
    Uses
+      At line 97 in file STM32F10x.s
       At line 201 in file STM32F10x.s
-Comment: TIM2_IRQHandler used once
+
 TIM3_IRQHandler 00000016
 
 Symbol: TIM3_IRQHandler
@@ -994,13 +993,13 @@ TIM4_IRQHandler 00000016
 
 Symbol: TIM4_IRQHandler
    Definitions
-      At line 247 in file STM32F10x.s
 
 
 
 ARM Macro Assembler    Page 8 Alphabetic symbol ordering
 Relocatable symbols
 
+      At line 247 in file STM32F10x.s
    Uses
       At line 99 in file STM32F10x.s
       At line 203 in file STM32F10x.s
@@ -1011,8 +1010,9 @@ Symbol: USART1_IRQHandler
    Definitions
       At line 254 in file STM32F10x.s
    Uses
+      At line 106 in file STM32F10x.s
       At line 210 in file STM32F10x.s
-Comment: USART1_IRQHandler used once
+
 USART2_IRQHandler 00000016
 
 Symbol: USART2_IRQHandler
@@ -1058,13 +1058,13 @@ Symbol: USB_LP_CAN_RX0_IRQHandler
       At line 89 in file STM32F10x.s
       At line 193 in file STM32F10x.s
 
-UsageFault_Handler 0000000C
-
 
 
 
 ARM Macro Assembler    Page 9 Alphabetic symbol ordering
 Relocatable symbols
+
+UsageFault_Handler 0000000C
 
 Symbol: UsageFault_Handler
    Definitions
@@ -1097,7 +1097,7 @@ Symbol: Heap_Size
    Uses
       At line 33 in file STM32F10x.s
 Comment: Heap_Size used once
-Stack_Size 00000200
+Stack_Size 00000400
 
 Symbol: Stack_Size
    Definitions
