@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "app_adc.h"
+#include "app_dht11.h"
 #include "queue.h"
 #include "bsp_adc.h"
 #include "adc_filter.h"
+#include "light_config.h"
+#include "light_process.h"
 
 #if (INCLUDE_vTaskDelayUntil != 1) || (INCLUDE_vTaskDelete != 1)
 #error Enable INCLUDE_vTaskDelayUntil and INCLUDE_vTaskDelete
@@ -18,6 +21,16 @@
 #define ADC_PERIOD_MS 100U
 #define MONITOR_PERIOD_MS 500U
 #define ADC_RETRY_CYCLES 10U
+
+static const LightConfig s_light_config = {
+    LIGHT_DARK_ADC, LIGHT_BRIGHT_ADC, LIGHT_MIN_SPAN,
+    LIGHT_CALIBRATED, LIGHT_DARK_ON_PCT, LIGHT_DARK_OFF_PCT,
+    LIGHT_CONFIRM_SAMPLES
+};
+
+volatile uint32_t g_light_percent = 0U;
+volatile uint32_t g_light_state = LIGHT_UNKNOWN;
+volatile uint32_t g_light_status = LIGHT_UNCALIBRATED;
 
 static QueueHandle_t s_queue = NULL;
 static TaskHandle_t s_adc_task = NULL;
@@ -38,6 +51,8 @@ static void AdcTask(void *parameter)
 {
     TickType_t last_wake;
     ADC_Filter filter;
+    LightContext light_context;
+    LightResult light;
     AdcSample_t sample;
     BSP_ADC_Status status = BSP_ADC_ERR_NOT_READY;
     uint32_t sequence = 0U;
@@ -46,6 +61,7 @@ static void AdcTask(void *parameter)
 
     (void)parameter;
     ADC_FilterReset(&filter);
+    Light_Reset(&light_context);
     last_wake = xTaskGetTickCount();
 
     for (;;)
@@ -96,6 +112,17 @@ static void AdcTask(void *parameter)
             ++g_adc_error_frames;
         }
 
+        /* Run on EVERY sample, before the latest-value queue can overwrite it. */
+        light = Light_Update(&light_context, &s_light_config,
+                             sample.filtered, sample.valid,
+                             (uint8_t)(sample.sample_count >= ADC_FILTER_WINDOW));
+        sample.light_percent = light.percent;
+        sample.light_state = (uint8_t)light.state;
+        sample.light_status = (uint8_t)light.status;
+        g_light_percent = sample.light_percent;
+        g_light_state = sample.light_state;
+        g_light_status = sample.light_status;
+
         sample.sequence = ++sequence;
         sample.tick = xTaskGetTickCount();
         sample.status = (uint8_t)status;
@@ -113,6 +140,37 @@ static void AdcTask(void *parameter)
     }
 }
 
+static void PrintDhtLatest(void)
+{
+    DHT11_Sample sample;
+    unsigned long age_ms;
+    if (App_DHT11_GetLatest(&sample) != pdPASS)
+    {
+        printf("DHT11_NOT_CREATED\r\n");
+        return;
+    }
+    age_ms = (unsigned long)((TickType_t)(xTaskGetTickCount() - sample.tick)) *
+             (unsigned long)portTICK_PERIOD_MS;
+    if (sample.valid != 0U)
+    {
+        printf("dhtseq=%lu T=%d.%uC RH=%u.%u%% age=%lums errors=%lu\r\n",
+               (unsigned long)sample.sequence,
+               (int)(sample.reading.temperature_x10 / 10),
+               (unsigned int)(sample.reading.temperature_x10 % 10),
+               (unsigned int)(sample.reading.humidity_x10 / 10U),
+               (unsigned int)(sample.reading.humidity_x10 % 10U),
+               age_ms, (unsigned long)sample.failures);
+    }
+    else
+    {
+        printf("dhtseq=%lu T=NA RH=NA status=%s edges=%u age=%lums errors=%lu\r\n",
+               (unsigned long)sample.sequence,
+               DHT11_StatusName((DHT11_Status)sample.status),
+               (unsigned int)sample.edges, age_ms,
+               (unsigned long)sample.failures);
+    }
+}
+
 static void MonitorTask(void *parameter)
 {
     TickType_t last_wake;
@@ -125,30 +183,40 @@ static void MonitorTask(void *parameter)
     {
         if (xQueueReceive(s_queue, &sample, 0) == pdPASS)
         {
-            if (sample.valid != 0U)
+            if ((TickType_t)(xTaskGetTickCount() - sample.tick) >=
+                pdMS_TO_TICKS(1000U))
             {
-                printf("seq=%lu tick=%lu raw=%u avg=%u mv=%lu n=%u\r\n",
+                printf("LIGHT_STALE state=UNKNOWN\r\n");
+            }
+            else if (sample.light_status == (uint8_t)LIGHT_OK)
+            {
+                printf("seq=%lu raw=%u avg=%u mv=%lu light=%u%% state=%s\r\n",
                        (unsigned long)sample.sequence,
-                       (unsigned long)sample.tick,
                        (unsigned int)sample.raw,
                        (unsigned int)sample.filtered,
                        (unsigned long)sample.voltage_mv,
-                       (unsigned int)sample.sample_count);
+                       (unsigned int)sample.light_percent,
+                       Light_StateName((LightState)sample.light_state));
             }
             else
             {
-                printf("seq=%lu tick=%lu ADC_ERROR=%u\r\n",
+                /* Never print an invalid/uncalibrated percentage as real data. */
+                printf("seq=%lu raw=%u avg=%u n=%u light=NA status=%s adc=%u state=UNKNOWN\r\n",
                        (unsigned long)sample.sequence,
-                       (unsigned long)sample.tick,
+                       (unsigned int)sample.raw,
+                       (unsigned int)sample.filtered,
+                       (unsigned int)sample.sample_count,
+                       Light_StatusName((LightStatus)sample.light_status),
                        (unsigned int)sample.status);
             }
         }
         else
         {
             ++g_adc_no_new_data;
-            printf("ADC_NO_NEW_DATA\r\n");
+            printf("ADC_NO_NEW_DATA state=UNKNOWN\r\n");
         }
 
+        PrintDhtLatest();
         g_monitor_stack_free = uxTaskGetStackHighWaterMark(NULL);
         g_heap_free = xPortGetFreeHeapSize();
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(MONITOR_PERIOD_MS));
@@ -189,3 +257,4 @@ int App_ADC_Create(void)
     }
     return 0;
 }
+

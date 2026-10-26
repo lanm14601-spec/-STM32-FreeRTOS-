@@ -13,6 +13,8 @@
 .\main.o: ..\..\Source\include\task.h
 .\main.o: ..\..\Source\include\list.h
 .\main.o: ..\..\Source\include\queue.h
+.\main.o: .\DHT11\app_dht11.h
+.\main.o: .\DHT11\dht11_protocol.h
 .\main.o: ..\..\Source\include\semphr.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_it.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_lib.h

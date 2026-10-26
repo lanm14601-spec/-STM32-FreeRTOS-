@@ -20,6 +20,10 @@
 ".\bsp_adc.o"
 ".\adc_filter.o"
 ".\app_adc.o"
+".\light_process.o"
+".\app_dht11.o"
+".\bsp_dht11.o"
+".\dht11_protocol.o"
 --library_type=microlib --strict --scatter ".\RTOSDemo.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

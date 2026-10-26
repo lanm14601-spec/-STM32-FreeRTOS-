@@ -64,6 +64,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "app_dht11.h"
 
 #include "semphr.h"
 
@@ -204,15 +205,17 @@ int main(void)
     /* 保留你已经验证能正常运行的硬件初始化 */
     prvSetupHardware();
 
-    printf("FreeRTOS V0.2 ADC1 PA0\r\n");
-
-    /* 创建采样队列、ADC任务和显示任务 */
-    result = App_ADC_Create();
-
-    if (result != 0)
-    {
-        AppStop(100UL + (unsigned long)result);
-    }
+	result = App_DHT11_Create();
+	if (result != 0)
+	{
+		AppStop(200UL + (unsigned long)result);
+	}
+	
+	result = App_ADC_Create();
+	if (result != 0)
+	{
+		AppStop(100UL + (unsigned long)result);
+	}
 
     vTaskStartScheduler();
 

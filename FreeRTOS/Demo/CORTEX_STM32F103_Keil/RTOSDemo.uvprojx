@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>RVDS_ARMCM3_LM3S102</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC</IncludePath>
+              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC;.\Light;.\DHT11</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -504,6 +504,36 @@
               <FileName>app_adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\ADC\app_adc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Light</GroupName>
+          <Files>
+            <File>
+              <FileName>light_process.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Light\light_process.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>DHT11</GroupName>
+          <Files>
+            <File>
+              <FileName>app_dht11.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\DHT11\app_dht11.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_dht11.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\DHT11\bsp_dht11.c</FilePath>
+            </File>
+            <File>
+              <FileName>dht11_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\DHT11\dht11_protocol.c</FilePath>
             </File>
           </Files>
         </Group>
