@@ -2,6 +2,7 @@
 #include <string.h>
 #include "app_adc.h"
 #include "app_dht11.h"
+#include "app_display.h"
 #include "queue.h"
 #include "bsp_adc.h"
 #include "adc_filter.h"
@@ -181,7 +182,7 @@ static void MonitorTask(void *parameter)
 
     for (;;)
     {
-        if (xQueueReceive(s_queue, &sample, 0) == pdPASS)
+        if (App_ADC_GetLatest(&sample) == pdPASS)
         {
             if ((TickType_t)(xTaskGetTickCount() - sample.tick) >=
                 pdMS_TO_TICKS(1000U))
@@ -217,6 +218,10 @@ static void MonitorTask(void *parameter)
         }
 
         PrintDhtLatest();
+        printf("oled=%s frames=%lu errors=%lu\r\n",
+               OLED_StatusName((OLED_Status)g_display_status),
+               (unsigned long)g_display_frames,
+               (unsigned long)g_display_errors);
         g_monitor_stack_free = uxTaskGetStackHighWaterMark(NULL);
         g_heap_free = xPortGetFreeHeapSize();
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(MONITOR_PERIOD_MS));
@@ -258,3 +263,12 @@ int App_ADC_Create(void)
     return 0;
 }
 
+
+BaseType_t App_ADC_GetLatest(AdcSample_t *out)
+{
+    if ((out == NULL) || (s_queue == NULL)) return pdFAIL;
+    /* Multi-reader snapshot: never remove the sample from this queue.
+     * Consumers check tick/valid/light_status before using numeric values.
+     */
+    return xQueuePeek(s_queue, out, 0);
+}

@@ -26,6 +26,11 @@ typedef struct
  */
 int App_ADC_Create(void);
 
+/* Task context only, non-consuming copy. pdFAIL if no snapshot yet.
+ * Check age < 1000 ms, valid and light_status before using percentage.
+ */
+BaseType_t App_ADC_GetLatest(AdcSample_t *out);
+
 /* Watch variables: diagnostics only, not a synchronized multi-field snapshot. */
 extern volatile uint32_t g_adc_sequence;
 extern volatile uint32_t g_adc_error_frames;

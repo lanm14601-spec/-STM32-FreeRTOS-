@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>RVDS_ARMCM3_LM3S102</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC;.\Light;.\DHT11</IncludePath>
+              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC;.\Light;.\DHT11;.\OLED</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

@@ -99,7 +99,7 @@
 //#define _TIM
 #define _TIM2
 #define _TIM3
-//#define _TIM4
+#define _TIM4
 
 /************************************* USART **********************************/
 #define _USART
