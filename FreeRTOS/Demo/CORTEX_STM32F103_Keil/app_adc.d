@@ -17,6 +17,8 @@
 .\app_adc.o: .\DHT11\dht11_protocol.h
 .\app_adc.o: .\OLED\app_display.h
 .\app_adc.o: .\OLED\bsp_oled_bus.h
+.\app_adc.o: .\Key\app_key.h
+.\app_adc.o: .\Key\key_logic.h
 .\app_adc.o: ..\..\Source\include\queue.h
 .\app_adc.o: ADC\bsp_adc.h
 .\app_adc.o: ADC\adc_filter.h

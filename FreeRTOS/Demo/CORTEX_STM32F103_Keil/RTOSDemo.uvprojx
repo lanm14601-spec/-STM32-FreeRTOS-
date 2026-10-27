@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>RVDS_ARMCM3_LM3S102</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC;.\Light;.\DHT11;.\OLED</IncludePath>
+              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC;.\Light;.\DHT11;.\OLED;.\Key</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -564,6 +564,31 @@
               <FileName>ssd1306.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\OLED\ssd1306.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_navigation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OLED\ui_navigation.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Key</GroupName>
+          <Files>
+            <File>
+              <FileName>app_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Key\app_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Key\bsp_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>key_logic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Key\key_logic.c</FilePath>
             </File>
           </Files>
         </Group>

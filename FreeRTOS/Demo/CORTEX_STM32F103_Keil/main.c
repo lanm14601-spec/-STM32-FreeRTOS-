@@ -66,6 +66,7 @@
 #include "queue.h"
 #include "app_dht11.h"
 #include "app_display.h"
+#include "app_key.h"
 
 #include "semphr.h"
 
@@ -217,7 +218,14 @@ int main(void)
         AppStop(100UL + (unsigned long)result);
     }
 
-    /* 新增：创建 OLED 显示任务 */
+    /* Create the key event queue before its DisplayTask consumer. */
+    result = App_Key_Create();
+    if (result != 0)
+    {
+        AppStop(400UL + (unsigned long)result);
+    }
+
+    /* Create OLED task after Key. */
     result = App_Display_Create();
     if (result != 0)
     {
@@ -309,3 +317,4 @@ void assert_failed( unsigned char* pcFile, unsigned long ulLine )
 	}
 }
 #endif
+

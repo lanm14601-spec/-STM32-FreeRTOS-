@@ -29,6 +29,10 @@
 ".\display_view.o"
 ".\oled_text.o"
 ".\ssd1306.o"
+".\ui_navigation.o"
+".\app_key.o"
+".\bsp_key.o"
+".\key_logic.o"
 --library_type=microlib --strict --scatter ".\RTOSDemo.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -3,6 +3,7 @@
 #include "app_adc.h"
 #include "app_dht11.h"
 #include "app_display.h"
+#include "app_key.h"
 #include "queue.h"
 #include "bsp_adc.h"
 #include "adc_filter.h"
@@ -222,6 +223,11 @@ static void MonitorTask(void *parameter)
                OLED_StatusName((OLED_Status)g_display_status),
                (unsigned long)g_display_frames,
                (unsigned long)g_display_errors);
+        printf("page=%u key=%lu dropped=%lu gaps=%lu\r\n",
+               (unsigned int)(g_display_page + 1U),
+               (unsigned long)g_key_events,
+               (unsigned long)g_key_dropped,
+               (unsigned long)g_key_scan_gaps);
         g_monitor_stack_free = uxTaskGetStackHighWaterMark(NULL);
         g_heap_free = xPortGetFreeHeapSize();
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(MONITOR_PERIOD_MS));
@@ -272,3 +278,4 @@ BaseType_t App_ADC_GetLatest(AdcSample_t *out)
      */
     return xQueuePeek(s_queue, out, 0);
 }
+

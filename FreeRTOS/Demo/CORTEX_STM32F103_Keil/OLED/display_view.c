@@ -35,7 +35,7 @@ void DisplayView_Build(const AdcSample_t *adc, const DHT11_Sample *dht,
         }
         else if (adc->valid == 0U) light_state = "ADC_ERROR";
     }
-    (void)snprintf(rows[0], sizeof(rows[0]), "ENV MONITOR V0.5");
+    (void)snprintf(rows[0], sizeof(rows[0]), "ENV MONITOR V0.6");
     if (dht_valid != 0U)
     {
         temperature = (int)dht->reading.temperature_x10;
@@ -57,10 +57,62 @@ void DisplayView_Build(const AdcSample_t *adc, const DHT11_Sample *dht,
         (void)snprintf(rows[3], sizeof(rows[3]), "LIGHT:-- %%");
     (void)snprintf(rows[4], sizeof(rows[4]), "L:%.19s", light_state);
     (void)snprintf(rows[5], sizeof(rows[5]), "D:%.19s", dht_state);
-    if (dht != 0)
-        (void)snprintf(rows[6], sizeof(rows[6]), "DSEQ:%lu", (unsigned long)dht->sequence);
-    else
-        (void)snprintf(rows[6], sizeof(rows[6]), "DSEQ:--");
-    (void)snprintf(rows[7], sizeof(rows[7]), "UP:%lu S",
+    (void)snprintf(rows[6], sizeof(rows[6]), "UP:%lu S",
                    (unsigned long)(now / configTICK_RATE_HZ));
+    (void)snprintf(rows[7], sizeof(rows[7]), "1-3 SHORT:NEXT");
+}
+
+void DisplayView_BuildPage(DisplayPage page, const AdcSample_t *adc,
+                           const DHT11_Sample *dht, TickType_t now, DisplayRows rows)
+{
+    uint8_t adc_valid;
+    if (rows == 0) return;
+    DisplayView_Build(adc, dht, now, rows);
+    if (page == DISPLAY_LIGHT)
+    {
+        /* Preserve formatted percentage and status before replacing their rows. */
+        memcpy(rows[5], rows[4], sizeof(rows[5]));
+        memcpy(rows[4], rows[3], sizeof(rows[4]));
+        (void)snprintf(rows[0], sizeof(rows[0]), "LIGHT DETAILS");
+        adc_valid = (uint8_t)((adc != 0) && (adc->valid != 0U) &&
+                     ((TickType_t)(now - adc->tick) < pdMS_TO_TICKS(1000U)));
+        if (adc_valid != 0U)
+        {
+            /* Raw ADC remains useful for calibration even if LIGHT is uncalibrated. */
+            (void)snprintf(rows[1], sizeof(rows[1]), "RAW:%u", (unsigned int)adc->raw);
+            (void)snprintf(rows[2], sizeof(rows[2]), "AVG:%u", (unsigned int)adc->filtered);
+            (void)snprintf(rows[3], sizeof(rows[3]), "MV:%lu", (unsigned long)adc->voltage_mv);
+        }
+        else
+        {
+            (void)snprintf(rows[1], sizeof(rows[1]), "RAW:--");
+            (void)snprintf(rows[2], sizeof(rows[2]), "AVG:--");
+            (void)snprintf(rows[3], sizeof(rows[3]), "MV:--");
+        }
+        if (adc != 0)
+            (void)snprintf(rows[6], sizeof(rows[6]), "AGE:%lu MS",
+                           (unsigned long)((TickType_t)(now - adc->tick)));
+        else
+            (void)snprintf(rows[6], sizeof(rows[6]), "AGE:--");
+        (void)snprintf(rows[7], sizeof(rows[7]), "2-3 SHORT:NEXT");
+    }
+    else if (page == DISPLAY_DHT)
+    {
+        memcpy(rows[3], rows[5], sizeof(rows[3]));
+        (void)snprintf(rows[0], sizeof(rows[0]), "DHT11 DETAILS");
+        if (dht != 0)
+        {
+            (void)snprintf(rows[4], sizeof(rows[4]), "SEQ:%lu", (unsigned long)dht->sequence);
+            (void)snprintf(rows[5], sizeof(rows[5]), "ERR:%lu", (unsigned long)dht->failures);
+            (void)snprintf(rows[6], sizeof(rows[6]), "AGE:%lu MS",
+                           (unsigned long)((TickType_t)(now - dht->tick)));
+        }
+        else
+        {
+            (void)snprintf(rows[4], sizeof(rows[4]), "SEQ:--");
+            (void)snprintf(rows[5], sizeof(rows[5]), "ERR:--");
+            (void)snprintf(rows[6], sizeof(rows[6]), "AGE:--");
+        }
+        (void)snprintf(rows[7], sizeof(rows[7]), "3-3 HOLD:HOME");
+    }
 }

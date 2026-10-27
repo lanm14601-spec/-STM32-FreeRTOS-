@@ -1,0 +1,16 @@
+.\bsp_key.o: Key\bsp_key.c
+.\bsp_key.o: Key\bsp_key.h
+.\bsp_key.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stdint.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_lib.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_map.h
+.\bsp_key.o: ..\CORTEX_STM32F103_Keil\stm32f10x_conf.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_type.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\cortexm3_macro.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_adc.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_exti.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_gpio.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_nvic.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_rcc.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_spi.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_systick.h
+.\bsp_key.o: .\STM32F10xFWLib\inc\stm32f10x_usart.h

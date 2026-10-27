@@ -17,5 +17,7 @@
 .\display_view.o: .\DHT11\app_dht11.h
 .\display_view.o: .\DHT11\dht11_protocol.h
 .\display_view.o: OLED\oled_config.h
+.\display_view.o: OLED\ui_navigation.h
+.\display_view.o: .\Key\key_logic.h
 .\display_view.o: .\Light\light_process.h
 .\display_view.o: .\DHT11\dht11_config.h

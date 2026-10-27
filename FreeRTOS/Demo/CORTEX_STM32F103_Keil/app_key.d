@@ -1,0 +1,17 @@
+.\app_key.o: Key\app_key.c
+.\app_key.o: Key\app_key.h
+.\app_key.o: ..\..\Source\include\FreeRTOS.h
+.\app_key.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stddef.h
+.\app_key.o: L:\keil5\keil5_app\ARM\ARMCC\Bin\..\include\stdint.h
+.\app_key.o: ..\CORTEX_STM32F103_Keil\FreeRTOSConfig.h
+.\app_key.o: ..\..\Source\include\projdefs.h
+.\app_key.o: ..\..\Source\include\portable.h
+.\app_key.o: ..\..\Source\include\deprecated_definitions.h
+.\app_key.o: ..\..\Source\include\../../Source/portable/RVDS/ARM_CM3/portmacro.h
+.\app_key.o: ..\..\Source\include\mpu_wrappers.h
+.\app_key.o: ..\..\Source\include\task.h
+.\app_key.o: ..\..\Source\include\list.h
+.\app_key.o: Key\key_logic.h
+.\app_key.o: Key\key_config.h
+.\app_key.o: Key\bsp_key.h
+.\app_key.o: ..\..\Source\include\queue.h
