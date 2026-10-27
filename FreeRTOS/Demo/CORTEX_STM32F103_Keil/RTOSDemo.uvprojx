@@ -537,6 +537,36 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>OLED</GroupName>
+          <Files>
+            <File>
+              <FileName>app_display.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OLED\app_display.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_oled_bus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OLED\bsp_oled_bus.c</FilePath>
+            </File>
+            <File>
+              <FileName>display_view.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OLED\display_view.c</FilePath>
+            </File>
+            <File>
+              <FileName>oled_text.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OLED\oled_text.c</FilePath>
+            </File>
+            <File>
+              <FileName>ssd1306.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OLED\ssd1306.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>

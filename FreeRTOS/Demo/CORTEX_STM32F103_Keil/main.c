@@ -65,6 +65,7 @@
 #include "task.h"
 #include "queue.h"
 #include "app_dht11.h"
+#include "app_display.h"
 
 #include "semphr.h"
 
@@ -202,28 +203,33 @@ int main(void)
 {
     int result;
 
-    /* 保留你已经验证能正常运行的硬件初始化 */
     prvSetupHardware();
 
-	result = App_DHT11_Create();
-	if (result != 0)
-	{
-		AppStop(200UL + (unsigned long)result);
-	}
-	
-	result = App_ADC_Create();
-	if (result != 0)
-	{
-		AppStop(100UL + (unsigned long)result);
-	}
+    result = App_DHT11_Create();
+    if (result != 0)
+    {
+        AppStop(200UL + (unsigned long)result);
+    }
+
+    result = App_ADC_Create();
+    if (result != 0)
+    {
+        AppStop(100UL + (unsigned long)result);
+    }
+
+    /* 新增：创建 OLED 显示任务 */
+    result = App_Display_Create();
+    if (result != 0)
+    {
+        AppStop(300UL + (unsigned long)result);
+    }
 
     vTaskStartScheduler();
 
-    /* 调度器正常启动后不应返回 */
     AppStop(4UL);
-
     return 0;
 }
+
 
 
 /*-----------------------------------------------------------*/
