@@ -11,11 +11,53 @@ static TaskHandle_t s_task = NULL;
 static DisplayRows s_rows;
 static uint8_t s_page[OLED_WIDTH];
 static DisplayPage s_current = DISPLAY_OVERVIEW;
+static volatile uint8_t s_request_pending = 0U;
+static DisplayPage s_requested_page = DISPLAY_OVERVIEW;
+volatile uint32_t g_display_requests = 0U;
+volatile uint32_t g_display_applied = 0U;
 volatile uint32_t g_display_page = DISPLAY_OVERVIEW;
 volatile uint32_t g_display_status = OLED_NOT_READY;
 volatile uint32_t g_display_frames = 0U;
 volatile uint32_t g_display_errors = 0U;
 volatile UBaseType_t g_display_stack_free = 0U;
+
+BaseType_t App_Display_RequestPage(DisplayPage page)
+{
+    BaseType_t result = pdFAIL;
+    if ((s_task == NULL) || ((unsigned int)page >= (unsigned int)DISPLAY_PAGE_COUNT))
+        return pdFAIL;
+    taskENTER_CRITICAL();
+    if (s_request_pending == 0U)
+    {
+        s_requested_page = page;
+        s_request_pending = 1U;
+        ++g_display_requests;
+        result = pdPASS;
+    }
+    taskEXIT_CRITICAL();
+    return result;
+}
+
+static uint8_t ApplySerialRequest(void)
+{
+    DisplayPage page = DISPLAY_OVERVIEW;
+    uint8_t pending;
+    taskENTER_CRITICAL();
+    pending = s_request_pending;
+    if (pending != 0U)
+    {
+        page = s_requested_page;
+        s_request_pending = 0U;
+    }
+    taskEXIT_CRITICAL();
+    if (pending != 0U)
+    {
+        s_current = page;
+        g_display_page = (uint32_t)page;
+        ++g_display_applied;
+    }
+    return pending;
+}
 
 static void ApplyEvent(const KeyEvent *event)
 {
@@ -41,16 +83,20 @@ static void WaitForRefresh(uint32_t pause_ms, uint8_t wake_on_key)
     TickType_t start = xTaskGetTickCount();
     TickType_t budget = pdMS_TO_TICKS(pause_ms);
     TickType_t elapsed;
+    TickType_t slice;
     for (;;)
     {
+        if ((ApplySerialRequest() != 0U) && (wake_on_key != 0U)) break;
         elapsed = (TickType_t)(xTaskGetTickCount() - start);
         if (elapsed >= budget) break;
-        if (App_Key_Receive(&event, (TickType_t)(budget - elapsed)) != pdPASS) break;
-        ApplyEvent(&event);
-        /* Normal: key wakes display early. Fault: preserve the retry delay
-         * while consuming events, so button activity cannot hammer the bus.
-         */
-        if (wake_on_key != 0U) break;
+        slice = (TickType_t)(budget - elapsed);
+        if (slice > pdMS_TO_TICKS(20U)) slice = pdMS_TO_TICKS(20U);
+        if (App_Key_Receive(&event, slice) == pdPASS)
+        {
+            ApplyEvent(&event);
+            if (wake_on_key != 0U) break;
+        }
+        /* A timeout polls the serial mailbox. Fault retry retains its budget. */
     }
 }
 
@@ -68,6 +114,8 @@ static void DisplayTask(void *parameter)
     for (;;)
     {
         DrainEvents();
+        /* At a frame boundary, pending serial selection follows queued keys. */
+        (void)ApplySerialRequest();
         status = OLED_OK;
         if (ready == 0U) status = SSD1306_Init();
         if (status == OLED_OK)
@@ -114,4 +162,5 @@ int App_Display_Create(void)
     }
     return 0;
 }
+
 

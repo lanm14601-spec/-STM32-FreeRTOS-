@@ -4,6 +4,7 @@
 #include "app_dht11.h"
 #include "app_display.h"
 #include "app_key.h"
+#include "app_console.h"
 #include "queue.h"
 #include "bsp_adc.h"
 #include "adc_filter.h"
@@ -21,7 +22,6 @@
 #endif
 
 #define ADC_PERIOD_MS 100U
-#define MONITOR_PERIOD_MS 500U
 #define ADC_RETRY_CYCLES 10U
 
 static const LightConfig s_light_config = {
@@ -173,64 +173,148 @@ static void PrintDhtLatest(void)
     }
 }
 
-static void MonitorTask(void *parameter)
+static uint8_t s_log_enabled = 1U;
+static uint32_t s_log_period_ms = CONSOLE_DEFAULT_PERIOD_MS;
+
+static void PrintStatus(void)
 {
-    TickType_t last_wake;
     AdcSample_t sample;
-
-    (void)parameter;
-    last_wake = xTaskGetTickCount();
-
-    for (;;)
+    if (App_ADC_GetLatest(&sample) == pdPASS)
     {
-        if (App_ADC_GetLatest(&sample) == pdPASS)
+        if ((TickType_t)(xTaskGetTickCount() - sample.tick) >=
+            pdMS_TO_TICKS(1000U))
         {
-            if ((TickType_t)(xTaskGetTickCount() - sample.tick) >=
-                pdMS_TO_TICKS(1000U))
-            {
-                printf("LIGHT_STALE state=UNKNOWN\r\n");
-            }
-            else if (sample.light_status == (uint8_t)LIGHT_OK)
-            {
-                printf("seq=%lu raw=%u avg=%u mv=%lu light=%u%% state=%s\r\n",
-                       (unsigned long)sample.sequence,
-                       (unsigned int)sample.raw,
-                       (unsigned int)sample.filtered,
-                       (unsigned long)sample.voltage_mv,
-                       (unsigned int)sample.light_percent,
-                       Light_StateName((LightState)sample.light_state));
-            }
-            else
-            {
-                /* Never print an invalid/uncalibrated percentage as real data. */
-                printf("seq=%lu raw=%u avg=%u n=%u light=NA status=%s adc=%u state=UNKNOWN\r\n",
-                       (unsigned long)sample.sequence,
-                       (unsigned int)sample.raw,
-                       (unsigned int)sample.filtered,
-                       (unsigned int)sample.sample_count,
-                       Light_StatusName((LightStatus)sample.light_status),
-                       (unsigned int)sample.status);
-            }
+            printf("LIGHT_STALE state=UNKNOWN\r\n");
+        }
+        else if (sample.light_status == (uint8_t)LIGHT_OK)
+        {
+            printf("seq=%lu raw=%u avg=%u mv=%lu light=%u%% state=%s\r\n",
+                   (unsigned long)sample.sequence,
+                   (unsigned int)sample.raw,
+                   (unsigned int)sample.filtered,
+                   (unsigned long)sample.voltage_mv,
+                   (unsigned int)sample.light_percent,
+                   Light_StateName((LightState)sample.light_state));
         }
         else
         {
-            ++g_adc_no_new_data;
-            printf("ADC_NO_NEW_DATA state=UNKNOWN\r\n");
+            /* Never print an invalid/uncalibrated percentage as real data. */
+            printf("seq=%lu raw=%u avg=%u n=%u light=NA status=%s adc=%u state=UNKNOWN\r\n",
+                   (unsigned long)sample.sequence,
+                   (unsigned int)sample.raw,
+                   (unsigned int)sample.filtered,
+                   (unsigned int)sample.sample_count,
+                   Light_StatusName((LightStatus)sample.light_status),
+                   (unsigned int)sample.status);
         }
+    }
+    else
+    {
+        ++g_adc_no_new_data;
+        printf("ADC_NO_NEW_DATA state=UNKNOWN\r\n");
+    }
 
-        PrintDhtLatest();
-        printf("oled=%s frames=%lu errors=%lu\r\n",
-               OLED_StatusName((OLED_Status)g_display_status),
-               (unsigned long)g_display_frames,
-               (unsigned long)g_display_errors);
-        printf("page=%u key=%lu dropped=%lu gaps=%lu\r\n",
-               (unsigned int)(g_display_page + 1U),
-               (unsigned long)g_key_events,
-               (unsigned long)g_key_dropped,
-               (unsigned long)g_key_scan_gaps);
+    PrintDhtLatest();
+    printf("oled=%s frames=%lu errors=%lu\r\n",
+           OLED_StatusName((OLED_Status)g_display_status),
+           (unsigned long)g_display_frames,
+           (unsigned long)g_display_errors);
+    printf("page=%u key=%lu dropped=%lu gaps=%lu\r\n",
+           (unsigned int)(g_display_page + 1U),
+           (unsigned long)g_key_events,
+           (unsigned long)g_key_dropped,
+           (unsigned long)g_key_scan_gaps);
+    printf("console=V0.9 ready=%lu rx=%lu rxdrop=%lu hwerr=%lu cmd=%lu cmddrop=%lu\r\n",
+           (unsigned long)g_console_ready, (unsigned long)g_console_rx_bytes,
+           (unsigned long)g_console_rx_dropped, (unsigned long)g_console_uart_errors,
+           (unsigned long)g_console_commands, (unsigned long)g_console_command_dropped);
+    printf("log=%u period=%lums req=%lu applied=%lu up=%lus\r\n",
+           (unsigned int)s_log_enabled, (unsigned long)s_log_period_ms,
+           (unsigned long)g_display_requests, (unsigned long)g_display_applied,
+           (unsigned long)(xTaskGetTickCount() / configTICK_RATE_HZ));
+    printf("heap=%lu stack:adc=%lu dht=%lu key=%lu oled=%lu console=%lu monitor=%lu\r\n",
+           (unsigned long)xPortGetFreeHeapSize(),
+           (unsigned long)g_adc_stack_free, (unsigned long)g_dht_stack_free,
+           (unsigned long)g_key_stack_free, (unsigned long)g_display_stack_free,
+           (unsigned long)g_console_stack_free, (unsigned long)g_monitor_stack_free);
+}
+
+static void HandleCommand(const ConsoleCommand *cmd)
+{
+    switch (cmd->kind)
+    {
+    case CMD_HELP:
+        printf("BEGIN HELP %lu\r\n", (unsigned long)cmd->id);
+        printf("HELP | STATUS | PAGE 1..3 | HOME\r\n");
+        printf("LOG ON/OFF | PERIOD 200..10000 (ms)\r\n");
+        printf("ASCII, end with CR/LF. Settings reset at reboot.\r\n");
+        printf("END HELP %lu\r\n", (unsigned long)cmd->id);
+        break;
+    case CMD_STATUS:
+        printf("BEGIN STATUS %lu\r\n", (unsigned long)cmd->id);
+        PrintStatus();
+        printf("END STATUS %lu\r\n", (unsigned long)cmd->id);
+        break;
+    case CMD_PAGE:
+        if (App_Display_RequestPage((DisplayPage)(cmd->value - 1U)) == pdPASS)
+            printf("OK %lu PAGE %lu QUEUED\r\n", (unsigned long)cmd->id,
+                   (unsigned long)cmd->value);
+        else
+            printf("ERR %lu DISPLAY_BUSY\r\n", (unsigned long)cmd->id);
+        break;
+    case CMD_LOG:
+        s_log_enabled = (uint8_t)cmd->value;
+        printf("OK %lu LOG %s\r\n", (unsigned long)cmd->id,
+               s_log_enabled ? "ON" : "OFF");
+        break;
+    case CMD_PERIOD:
+        s_log_period_ms = cmd->value;
+        printf("OK %lu PERIOD %lu\r\n", (unsigned long)cmd->id,
+               (unsigned long)s_log_period_ms);
+        break;
+    case CMD_ERROR:
+        printf("ERR %lu %s\r\n", (unsigned long)cmd->id,
+               Console_ErrorName(cmd->error));
+        break;
+    default:
+        printf("ERR %lu INTERNAL\r\n", (unsigned long)cmd->id);
+        break;
+    }
+}
+
+static void MonitorTask(void *parameter)
+{
+    ConsoleCommand command;
+    TickType_t last_report;
+    TickType_t elapsed;
+    TickType_t period;
+    TickType_t wait;
+    (void)parameter;
+    printf("BOOT V0.9 UART 115200 8N1; send HELP with CR/LF\r\n");
+    last_report = xTaskGetTickCount();
+    for (;;)
+    {
+        period = pdMS_TO_TICKS(s_log_period_ms);
+        elapsed = (TickType_t)(xTaskGetTickCount() - last_report);
+        if ((s_log_enabled != 0U) && (elapsed >= period))
+        {
+            printf("BEGIN TELEMETRY\r\n");
+            PrintStatus();
+            printf("END TELEMETRY\r\n");
+            /* No catch-up flood after a slow output or a command burst. */
+            last_report = xTaskGetTickCount();
+        }
         g_monitor_stack_free = uxTaskGetStackHighWaterMark(NULL);
         g_heap_free = xPortGetFreeHeapSize();
-        vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(MONITOR_PERIOD_MS));
+        elapsed = (TickType_t)(xTaskGetTickCount() - last_report);
+        wait = (elapsed >= period) ? 0U : (TickType_t)(period - elapsed);
+        if (s_log_enabled == 0U) wait = pdMS_TO_TICKS(500U);
+        if (App_Console_Receive(&command, wait) == pdPASS)
+        {
+            HandleCommand(&command);
+            if ((command.kind == CMD_LOG) || (command.kind == CMD_PERIOD))
+                last_report = xTaskGetTickCount();
+        }
     }
 }
 
@@ -278,4 +362,5 @@ BaseType_t App_ADC_GetLatest(AdcSample_t *out)
      */
     return xQueuePeek(s_queue, out, 0);
 }
+
 

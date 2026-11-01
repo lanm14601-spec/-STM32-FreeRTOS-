@@ -17,8 +17,12 @@
 .\app_adc.o: .\DHT11\dht11_protocol.h
 .\app_adc.o: .\OLED\app_display.h
 .\app_adc.o: .\OLED\bsp_oled_bus.h
-.\app_adc.o: .\Key\app_key.h
+.\app_adc.o: .\OLED\ui_navigation.h
 .\app_adc.o: .\Key\key_logic.h
+.\app_adc.o: .\Key\app_key.h
+.\app_adc.o: .\Console\app_console.h
+.\app_adc.o: .\Console\console_protocol.h
+.\app_adc.o: .\Console\console_config.h
 .\app_adc.o: ..\..\Source\include\queue.h
 .\app_adc.o: ADC\bsp_adc.h
 .\app_adc.o: ADC\adc_filter.h

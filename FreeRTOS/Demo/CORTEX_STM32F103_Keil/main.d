@@ -17,8 +17,12 @@
 .\main.o: .\DHT11\dht11_protocol.h
 .\main.o: .\OLED\app_display.h
 .\main.o: .\OLED\bsp_oled_bus.h
-.\main.o: .\Key\app_key.h
+.\main.o: .\OLED\ui_navigation.h
 .\main.o: .\Key\key_logic.h
+.\main.o: .\Key\app_key.h
+.\main.o: .\Console\app_console.h
+.\main.o: .\Console\console_protocol.h
+.\main.o: .\Console\console_config.h
 .\main.o: ..\..\Source\include\semphr.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_it.h
 .\main.o: .\STM32F10xFWLib\inc\stm32f10x_lib.h

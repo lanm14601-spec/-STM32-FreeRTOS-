@@ -12,13 +12,13 @@
 .\app_display.o: ..\..\Source\include\task.h
 .\app_display.o: ..\..\Source\include\list.h
 .\app_display.o: OLED\bsp_oled_bus.h
+.\app_display.o: OLED\ui_navigation.h
+.\app_display.o: .\Key\key_logic.h
 .\app_display.o: OLED\display_view.h
 .\app_display.o: .\ADC\app_adc.h
 .\app_display.o: .\DHT11\app_dht11.h
 .\app_display.o: .\DHT11\dht11_protocol.h
 .\app_display.o: OLED\oled_config.h
-.\app_display.o: OLED\ui_navigation.h
-.\app_display.o: .\Key\key_logic.h
 .\app_display.o: OLED\oled_text.h
 .\app_display.o: OLED\ssd1306.h
 .\app_display.o: .\Key\app_key.h

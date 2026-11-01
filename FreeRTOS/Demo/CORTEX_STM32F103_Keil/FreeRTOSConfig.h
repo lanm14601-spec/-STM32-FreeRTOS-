@@ -52,7 +52,7 @@
 
 /* 初期内存配置，后续根据实际占用调整 */
 #define configMINIMAL_STACK_SIZE	( ( unsigned short ) 128 )
-#define configTOTAL_HEAP_SIZE		( ( size_t ) ( 10 * 1024 ) )
+#define configTOTAL_HEAP_SIZE		( ( size_t ) ( 12 * 1024 ) )
 
 /* 多任务输出保护 */
 #define configUSE_MUTEXES                   1
@@ -106,4 +106,5 @@ NVIC value of 255. */
 #define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
 
 #endif /* FREERTOS_CONFIG_H */
+
 

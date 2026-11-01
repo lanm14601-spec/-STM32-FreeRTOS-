@@ -35,7 +35,7 @@ void DisplayView_Build(const AdcSample_t *adc, const DHT11_Sample *dht,
         }
         else if (adc->valid == 0U) light_state = "ADC_ERROR";
     }
-    (void)snprintf(rows[0], sizeof(rows[0]), "ENV MONITOR V0.6");
+    (void)snprintf(rows[0], sizeof(rows[0]), "ENV MONITOR V0.9");
     if (dht_valid != 0U)
     {
         temperature = (int)dht->reading.temperature_x10;
@@ -116,3 +116,4 @@ void DisplayView_BuildPage(DisplayPage page, const AdcSample_t *adc,
         (void)snprintf(rows[7], sizeof(rows[7]), "3-3 HOLD:HOME");
     }
 }
+

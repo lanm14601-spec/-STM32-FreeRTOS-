@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>RVDS_ARMCM3_LM3S102</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC;.\Light;.\DHT11;.\OLED;.\Key</IncludePath>
+              <IncludePath>..\CORTEX_STM32F103_Keil;.\serial;..\..\Source\include;.\STM32F10xFWLib\inc;.\ADC;.\Light;.\DHT11;.\OLED;.\Key;.\Console</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -589,6 +589,21 @@
               <FileName>key_logic.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Key\key_logic.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>console</GroupName>
+          <Files>
+            <File>
+              <FileName>app_console.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Console\app_console.c</FilePath>
+            </File>
+            <File>
+              <FileName>console_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Console\console_protocol.c</FilePath>
             </File>
           </Files>
         </Group>

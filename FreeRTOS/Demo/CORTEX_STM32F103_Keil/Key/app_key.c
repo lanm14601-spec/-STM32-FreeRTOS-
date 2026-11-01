@@ -17,31 +17,62 @@ static void KeyTask(void *parameter)
     KeyEvent event;
     TickType_t now;
     uint8_t pressed;
+
     (void)parameter;
+
     BSP_Key_Init();
+
     pressed = BSP_Key_IsPressed();
     now = xTaskGetTickCount();
+
     KeyLogic_Init(&ctx, pressed, (uint32_t)now);
+
+    /* 保存初始化时的状态 */
+    g_key_pressed = (uint32_t)pressed;
+    g_key_armed = (uint32_t)ctx.armed;
+
     for (;;)
     {
-        /* Relative delay avoids back-to-back catch-up reads of one GPIO level. */
         vTaskDelay(pdMS_TO_TICKS(KEY_SCAN_MS));
+
+        /* ① 读取引脚 */
         pressed = BSP_Key_IsPressed();
         now = xTaskGetTickCount();
-        if ((uint32_t)((uint32_t)now - ctx.last_sample) > KEY_MAX_SCAN_GAP_MS)
+
+        ++g_key_scan_count;
+        g_key_pressed = (uint32_t)pressed;
+
+        /* ② 检查两次扫描之间是否间隔过长 */
+        if ((uint32_t)((uint32_t)now - ctx.last_sample)
+            > KEY_MAX_SCAN_GAP_MS)
+        {
             ++g_key_scan_gaps;
-        event.action = KeyLogic_Update(&ctx, pressed, (uint32_t)now);
+        }
+
+        /* ③ 消抖并识别短按、长按 */
+        event.action =
+            KeyLogic_Update(&ctx, pressed, (uint32_t)now);
+
+        g_key_armed = (uint32_t)ctx.armed;
+
+        /* ④ 产生事件后，发送给显示任务 */
         if (event.action != KEY_NONE)
         {
             event.tick = now;
             event.sequence = ++g_key_events;
+
             g_key_last_action = (uint32_t)event.action;
-            /* FIFO event history. Never overwrite; never block the scanner. */
-            if (xQueueSend(s_queue, &event, 0) != pdPASS) ++g_key_dropped;
+
+            if (xQueueSend(s_queue, &event, 0) != pdPASS)
+            {
+                ++g_key_dropped;
+            }
         }
+
         g_key_stack_free = uxTaskGetStackHighWaterMark(NULL);
     }
 }
+
 
 int App_Key_Create(void)
 {

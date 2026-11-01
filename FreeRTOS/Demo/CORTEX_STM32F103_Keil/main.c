@@ -67,6 +67,7 @@
 #include "app_dht11.h"
 #include "app_display.h"
 #include "app_key.h"
+#include "app_console.h"
 
 #include "semphr.h"
 
@@ -232,6 +233,12 @@ int main(void)
         AppStop(300UL + (unsigned long)result);
     }
 
+    result = App_Console_Create();
+    if (result != 0)
+    {
+        AppStop(500UL + (unsigned long)result);
+    }
+
     vTaskStartScheduler();
 
     AppStop(4UL);
@@ -317,4 +324,5 @@ void assert_failed( unsigned char* pcFile, unsigned long ulLine )
 	}
 }
 #endif
+
 
